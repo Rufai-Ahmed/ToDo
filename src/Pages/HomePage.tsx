@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import styled from "styled-components";
 import moment from "moment";
-import { getTask } from "../API/API";
+import { deleteTask, getTask } from "../API/API";
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
-  const [state, setState] = useState<Array<{}>>([]);
+  const [state, setState] = useState<Array<any>>([]);
 
   useEffect(() => {
     getTask()?.then((res) => {
@@ -13,38 +14,102 @@ const HomePage = () => {
     });
   }, []);
 
+  const [show, setShow] = useState<boolean>();
+
+  useEffect(() => {
+    console.log(state);
+    console.log(state.length);
+
+    if (state.length === 0) {
+      setShow(true);
+    } else {
+      setShow(false);
+    }
+  }, [state]);
+
   return (
     <div>
-      <Container>
-        <Main>
-          {state?.map((props: any) => (
-            <Card key={props.id} bcc={props.urgency}>
-              <Right>
-                <Text>{props.task}</Text>
+      {show ? (
+        <Big>
+          No Task Added Yet
+          <Button to="/addtask">Add to task</Button>
+        </Big>
+      ) : (
+        <Container>
+          <Main>
+            {state?.map((props: any) => (
+              <Card
+                key={props.id}
+                bcc={
+                  props.urgency === "Important"
+                    ? "rgba(0, 0, 300, 0.3)"
+                    : props.urgency === "Casual"
+                    ? "rgba(110, 115, 300, 0.3)"
+                    : props.urgency === "Fail"
+                    ? "rgba(200, 10, 300, 0.3)"
+                    : "white"
+                }
+              >
+                <Right>
+                  <Text>{props.task}</Text>
 
-                <Both>
-                  <View>{props.urgency}</View>
-                  <Time>{moment(props.time).fromNow()}</Time>
-                </Both>
-              </Right>
+                  <Both>
+                    <View>{props.urgency}</View>
+                    <Time>{moment(props.time).fromNow()}</Time>
+                  </Both>
+                </Right>
 
-              <Left>
-                <Close>
-                  <Div>
-                    <AiOutlineClose />
-                  </Div>
-                </Close>
-                <Edit>Edit</Edit>
-              </Left>
-            </Card>
-          ))}
-        </Main>
-      </Container>
+                <Left>
+                  <Close>
+                    <Div
+                      onClick={() => {
+                        deleteTask(props.id)?.then(() => {
+                          setState((state) =>
+                            state.filter((el) => el.id !== props.id)
+                          );
+                        });
+                      }}
+                    >
+                      <AiOutlineClose />
+                    </Div>
+                  </Close>
+                  <Edit>Edit</Edit>
+                </Left>
+              </Card>
+            ))}
+          </Main>
+        </Container>
+      )}
     </div>
   );
 };
 
 export default HomePage;
+
+const Button = styled(Link)`
+  padding: 10px 12px;
+  font-size: 20px;
+  border-radius: 20px;
+  border: 1px solid orange;
+  transition: all 350ms;
+  color: black;
+  text-decoration: none;
+  &:hover {
+    background-color: darkorange;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+  }
+`;
+
+const Big = styled.div`
+  width: 100%;
+  height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+`;
 
 const Div = styled.div``;
 const Edit = styled.div`

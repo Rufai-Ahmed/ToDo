@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export const AddTask = () => {
   const [task, setTask] = useState("");
-  const [urgency, setUrgency] = useState("yellow");
+  const [urgency, setUrgency] = useState("Important");
   const navigate = useNavigate();
   return (
     <div>
@@ -24,9 +24,9 @@ export const AddTask = () => {
               setUrgency(e.target.value);
             }}
           >
-            <Option value={"rgba(330, 444, 300, 0.3)"}>Important</Option>
-            <Option value={"rgba(110, 115, 300, 0.3)"}>Casual</Option>
-            <Option value={"rgba(0, 0, 300, 0.3)"}> Fail</Option>
+            <Option value={"Important"}>Important</Option>
+            <Option value={"Casual"}>Casual</Option>
+            <Option value={"Fail"}> Fail</Option>
           </Select>
           <Button
             onClick={() => {
@@ -34,9 +34,10 @@ export const AddTask = () => {
                 id: Math.floor(Math.random() * new Date().getTime()),
                 time: new Date().getTime(),
                 task,
+
                 urgency,
               };
-              createTask(data).then(() => {
+              createTask(data)?.then(() => {
                 navigate("/");
               });
             }}
